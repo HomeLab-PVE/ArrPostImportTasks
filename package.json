@@ -1,0 +1,17 @@
+{
+  "name": "ArrPostImportTasks",
+  "version": "0.0.1",
+  "main": "index.js",
+  "bin": {
+    "arrpostimporttasks": "./bin/cli.js"
+  },
+  "author": "L.Laurentiu <l.laurentiu@ymail.com>",
+  "dependencies": {
+    "detect-file-encoding-and-language": "^2.3.3",
+    "dotenv": "^16.0.3",
+    "iconv-lite": "^0.6.3",
+    "matroska-subtitles": "^3.3.2",
+    "requestretry": "^7.1.0",
+    "zero-fill": "^2.2.4"
+  }
+}
