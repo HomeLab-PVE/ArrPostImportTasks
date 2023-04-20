@@ -32,7 +32,9 @@ if (missingEnvs !== false) {
 	} catch (err) {
 		logger.error("Extract internal subtitles: ", err);
 	}
-	logger.info(`Notify Bazarr at ${envs.bazarrAddress}`)
-	await notifyBazarr();
+	if (envs.bazarrAddress && envs.bazarrApiKey) {
+		logger.info(`Notify Bazarr at ${envs.bazarrAddress}`)
+		await notifyBazarr();
+	}
 	logger.info(`Finished tasks for video ID: ${envs.importArr}-${envs.videoId}`);
 })()
