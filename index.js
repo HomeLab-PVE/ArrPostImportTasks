@@ -12,7 +12,7 @@ if (missingEnvs !== false) {
 } else {
 	if (envs.eventType !== 'Download') {
 		logger.warn('Event type is not import. Exiting...');
-		process.exit(0);
+		process.exit();
 	}
 }
 
