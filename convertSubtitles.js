@@ -31,7 +31,7 @@ const checkForExternalSubs = async (envs) => {
 				};
 			}
 		}
-		logger.info(`No external subs found in ${envs.moviePath}`)
+		logger.info(`No external subs found in ${path.dirname(envs.movieFileRelativePath)}`)
 		return false;
 	} catch (err) {
 		logger.error("checkForExternalSubs: ", err);
