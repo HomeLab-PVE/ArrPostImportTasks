@@ -1,10 +1,11 @@
 const request = require('requestretry');
 const envs = require('./environments');
+const { logger } = require('./logger');
 
 const notifyBazarr = async () => {
 	try {
 		if (!envs.bazarrAddress || !envs.bazarrApiKey) {
-			console.log(`Bazarr IP:PORT/API Key not found in .env. Skiping...`)
+			logger.warn(`Bazarr IP:PORT/API Key not found in .env. Skiping...`)
 			return false;
 		}		
 		const options = {
@@ -23,7 +24,7 @@ const notifyBazarr = async () => {
 		return await request.post(`${envs.bazarrAddress}/api/webhooks/${envs.importArr}`, options);
 		
 	} catch (err) {
-		console.error("notifyBazarr: ", err);
+		logger.error("notifyBazarr: ", err);
 	}
 };
 
