@@ -13,6 +13,11 @@ const checkEnvs = (obj) => {
 	return false;
 };
 
+function capitalize(str) {
+	const lower = str.toLowerCase();
+	return str.charAt(0).toUpperCase() + lower.slice(1);
+}
+
 const fileExists = async (path) => !!(await fs.promises.stat(path).catch((e) => false));
 
 const fileExistsSync = (path) => {
@@ -38,4 +43,5 @@ module.exports = {
 	fileExists,
 	fileExistsSync,
 	msToTime,
+	capitalize,
 }
