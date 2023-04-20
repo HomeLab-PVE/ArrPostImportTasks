@@ -1,4 +1,5 @@
 const envs = require('./environments');
+const { logger } = require('./logger');
 const { checkEnvs } = require('./utils');
 const { convertExternalSubtitles, checkForExternalSubs, detectEncoding, checkExtractedSubtitles } = require('./convertSubtitles');
 const extractSubtitles = require('./extractSubtitles');
@@ -6,38 +7,28 @@ const { notifyBazarr } = require('./notify');
 
 const missingEnvs = checkEnvs(envs);
 if (missingEnvs !== false) {
-	console.log(`Missing environments: ${missingEnvs.join()}. Exiting...`);
-	process.exit(0);
+	logger.warn(`Missing environments: ${missingEnvs.join()}. Exiting...`);
+	process.exit();
 } else {
 	if (envs.eventType !== 'Download') {
-		console.log('Event type is not import. Exiting...');
+		logger.warn('Event type is not import. Exiting...');
 		process.exit(0);
 	}
 }
 
 (async function () {
-	console.log(`Staring post import tasks for video ID: ${envs.importArr}-${envs.videoId}`)
-	console.log("Checking for external subtitles");
+	logger.info(`Starting post import tasks for video ID: ${envs.importArr}-${envs.videoId}`)
+	logger.info("Checking for external subtitles");
 	let externalSubFilePaths;
 	if (externalSubFilePaths = await checkForExternalSubs(envs) ) {
 		await convertExternalSubtitles(externalSubFilePaths);
 	}
-	console.log("Checking for internal subtitles");
+	logger.info("Checking for internal subtitles");
 	const extractedSubtitles = await extractSubtitles (envs.movieFilePath, envs.moviePath);
 	await checkExtractedSubtitles(extractedSubtitles);
-	console.log('Notify Bazarr')
-	const bazarrResponse = await notifyBazarr();
-	console.log((bazarrResponse == '') ? `Bazarr was successfully notified at ${envs.bazarrAddress}` : bazarrResponse);
-	console.log(`Finished tasks for video ID: ${envs.importArr}-${envs.videoId}`)
+	logger.info(`Notify Bazarr at ${envs.bazarrAddress}`)
+	await notifyBazarr();
+	logger.info(`Finished tasks for video ID: ${envs.importArr}-${envs.videoId}`)
 
 		
 })()
-
-
-
-
-
-
-
-
-
