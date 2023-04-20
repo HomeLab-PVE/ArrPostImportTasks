@@ -20,15 +20,19 @@ if (missingEnvs !== false) {
 	logger.info(`Starting post import tasks for video ID: ${envs.importArr}-${envs.videoId}`)
 	logger.info("Checking for external subtitles");
 	let externalSubFilePaths;
+	let extractedSubtitles;
 	if (externalSubFilePaths = await checkForExternalSubs(envs) ) {
 		await convertExternalSubtitles(externalSubFilePaths);
 	}
 	logger.info("Checking for internal subtitles");
-	const extractedSubtitles = await extractSubtitles (envs.movieFilePath, envs.moviePath);
-	await checkExtractedSubtitles(extractedSubtitles);
+	try {
+		if (extractedSubtitles = await extractSubtitles(envs.movieFilePath) ) {
+			await checkExtractedSubtitles(extractedSubtitles);
+		}
+	} catch (err) {
+		logger.error("Extract internal subtitles: ", err);
+	}
 	logger.info(`Notify Bazarr at ${envs.bazarrAddress}`)
 	await notifyBazarr();
-	logger.info(`Finished tasks for video ID: ${envs.importArr}-${envs.videoId}`)
-
-		
+	logger.info(`Finished tasks for video ID: ${envs.importArr}-${envs.videoId}`);
 })()
