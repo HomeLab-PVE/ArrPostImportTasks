@@ -43,8 +43,8 @@ const infoLanguageEncoding = (data) => {
 		return;
 	}
 	info = [];
-	info.push(`Detected language: ${capitalize(data.language)} with confidence: ${data.confidence.language}`);
-	info.push(`Detected encoding: ${data.encoding} with confidence: ${data.confidence.encoding}`);
+	info.push(`Detected language and encoding: ${capitalize(data.language)}(confidence:${data.confidence.language})`);
+	info.push(`${data.encoding}(confidence:${data.confidence.encoding})`);
 	return info;
 }
 
@@ -75,7 +75,7 @@ const convertExternalSubtitles = async (opts = {}) => {
 			logger.info('Detected language is not Romanian. Abort...');
 			return;
 		}
-		logger.info(infoLanguageEncoding(detectedEnconding).join('\n'));
+		logger.info(infoLanguageEncoding(detectedEnconding).join(', '));
 		
 		let saveLocation = path.join(opts.moviePath, `${opts.fileNameNoExtension}.ro.${opts.extension}`);
 		
@@ -94,10 +94,9 @@ const checkExtractedSubtitles = async (extractedSubtitles = []) => {
 			let filePath = extractedSubtitles[i].path;
 			logger.info(`Validating the extracted subtitle ${filePath}`);
 			let detectedEncondingAndLanguage = await detectEncoding(filePath);
-			logger.info(infoLanguageEncoding(detectedEncondingAndLanguage).join('\n'));
+			logger.info(infoLanguageEncoding(detectedEncondingAndLanguage).join(', '));
 			let encoding = detectedEncondingAndLanguage.encoding.toLowerCase();
 			if (encoding === 'utf-8' && detectedEncondingAndLanguage.language === 'romanian') {
-				logger.info(`Everything is fine.`);
 				return;
 			} else {
 				if (detectedEncondingAndLanguage.language !== 'romanian') {
@@ -108,9 +107,7 @@ const checkExtractedSubtitles = async (extractedSubtitles = []) => {
 				}
 				if (encoding !== 'utf-8') {
 					logger.info(`Subtitle neads to be converted to UTF-8`);
-					if (await convertSubtitles(filePath, detectedEncondingAndLanguage.encoding)) {
-						logger.info(`Everything is fine now.`);
-					}
+					await convertSubtitles(filePath, detectedEncondingAndLanguage.encoding);
 				}
 			}
 		}
