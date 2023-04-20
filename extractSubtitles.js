@@ -77,12 +77,9 @@ const extractSubtitles = (mkvPath, outputDir) => new Promise((resolve, reject) =
 		const file = fs.createReadStream(mkvPath)
 		file.on('error', err => reject(err))
 		file.pipe(subs)
-		
-		return;
-		
+				
 	} catch (err) {
 		logger.error("extractSubtitles: ", err);
-		resolve()
 	}
 })
 
