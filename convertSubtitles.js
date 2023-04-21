@@ -58,7 +58,7 @@ const convertSubtitles = async (filePath, originalEncoding, saveLocation) => {
 		const utf8Buffer = iconv.encode(fileContent, 'utf-8');
 		logger.info(`File buffer converted from ${originalEncoding} to UTF-8 encoding`);
 		await fs.promises.writeFile(saveLocation, utf8Buffer);
-		logger.info(`File saved successfully in ${saveLocation}`);
+		logger.info(`Subtitle saved successfully in ${saveLocation}`);
 		return true;
 	} catch (err) {
 		logger.error("convertSubtitles: ", err);
@@ -78,10 +78,14 @@ const convertExternalSubtitles = async (opts = {}) => {
 		logger.info(infoLanguageEncoding(detectedEnconding).join(', '));
 		
 		let saveLocation = path.join(opts.moviePath, `${opts.fileNameNoExtension}.ro.${opts.extension}`);
+
+		await convertSubtitles(opts.filePath, detectedEnconding.encoding, saveLocation);
+		await archiveSub({
+			old: opts.filePath,
+			new: opts.filePath + '.archive',
+		});
 		
-		if (await convertSubtitles(opts.filePath, detectedEnconding.encoding, saveLocation)) {
-			return true;
-		}
+		return true;
 		
 	} catch (err) {
 		logger.error("convertExternalSubtitles: ", err);
@@ -118,7 +122,27 @@ const checkExtractedSubtitles = async (extractedSubtitles = []) => {
 		logger.error("checkExtractedSubtitles: ", err);
 	}
 };
+
+const archiveSub = async ( opts = {} ) => {
+	try {
+		await fs.rename(opts.old, opts.new, (error) => {
+			if (error) {
+				logger.error("Archiving external source subtitle: ", err);
+				return false;
+			}
+			logger.info(`Archived external source subtitle in ${opts.new}`);
+			return true;
+		});
+	} catch (err) {
+		logger.error("archiveSub: ", err);
+	}
+}
 	
+const srtPath = function (language) {
+	const languageSuffix = language ? '.' + language : ''
+	return path.join(dir, name + languageSuffix + '.srt')
+}
+		
 module.exports = {
 	convertExternalSubtitles, 
 	detectEncoding, 
