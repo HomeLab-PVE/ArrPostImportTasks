@@ -9,7 +9,7 @@ const customFormat = printf( ({ level, message, timestamp }) => {
 });
 
 const logFileName = () => {
-	return path.join(path.dirname(envs.movieFilePath), path.basename(`${envs.movieFilePath}.post-import`));
+	return path.join(path.dirname(envs.movieFilePath), path.basename(`${envs.movieFilePath}.post-import-${envs.importArr}`));
 };
 
 let logFile = 'orphans';
