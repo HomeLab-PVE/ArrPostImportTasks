@@ -1,5 +1,5 @@
 const { createLogger, format, transports } = require('winston');
-const { combine, timestamp, label, printf, colorize } = format;
+const { combine, timestamp, label, printf } = format;
 const envs = require('./environments');
 const path = require('path');
 const { fileExistsSync } = require('./utils');
@@ -9,7 +9,7 @@ const customFormat = printf( ({ level, message, timestamp }) => {
 });
 
 const logFileName = () => {
-	return path.join(path.dirname(envs.movieFilePath), path.basename(`${envs.movieFilePath}.post-import-${envs.videoId}`));
+	return path.join(path.dirname(envs.movieFilePath), path.basename(`${envs.movieFilePath}.post-import`));
 };
 
 let logFile = 'orphans';
