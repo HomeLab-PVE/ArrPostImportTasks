@@ -4,8 +4,8 @@ const { SubtitleParser } = require('matroska-subtitles');
 const { msToTime, fileExistsSync } = require('./utils');
 const { logger } = require('./logger');
 
-function searchSubsTracks(lang, array){
-    for (let i=0; i < array.length; i++) {
+const searchSubsTracks = (lang, array) => {
+	for (let i=0; i < array.length; i++) {
         if (array[i].language === lang) {
             return array[i];
         }
