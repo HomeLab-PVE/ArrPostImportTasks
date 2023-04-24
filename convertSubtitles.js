@@ -108,6 +108,7 @@ const checkExtractedSubtitles = async (extractedSubtitles = []) => {
 						force: true,
 					});
 					logger.info(`Subtitle ${filePath} deleted because detected language is not Romanian.`);
+					return;
 				}
 				if (encoding !== 'utf-8') {
 					logger.info(`Subtitle neads to be converted to UTF-8`);
