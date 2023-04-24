@@ -20,6 +20,8 @@ const envs = {
 	movieFileRelativePath: process.env.radarr_moviefile_relativepath || process.env.sonarr_episodefile_relativepath || null,
 	bazarrAddress: process.env.BAZARR_IP_PORT,
 	bazarrApiKey: process.env.BAZARR_API_KEY,
+	jellyfinAddress: process.env.JELLYFIN_IP_PORT,
+	jellyfinApiKey: process.env.JELLYFIN_API_KEY,
 };
 
 module.exports = envs;
