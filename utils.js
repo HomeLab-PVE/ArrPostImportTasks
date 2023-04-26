@@ -6,8 +6,6 @@ function capitalize(str) {
 	return str.charAt(0).toUpperCase() + str.toLowerCase().slice(1);
 }
 
-const fileExists = async (path) => !!(await fs.promises.stat(path).catch((e) => false));
-
 const fileExistsSync = (path) => {
 	if (fs.existsSync(path)) {
 		return true;
@@ -26,9 +24,18 @@ const msToTime = (s) => {
 	return z(2, hrs) + ':' + z(2, mins) + ':' + z(2, secs) + ',' + z(3, ms);
 }
 
+const insertSpacesCamel = (str) => {
+    str = str.replace(/([a-z])([A-Z])/g, '$1 $2');
+    str = str.replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
+    return str;
+}
+
+const fileExists = async (path) => !!(await fs.promises.stat(path).catch((e) => false));
+
 module.exports = {
 	fileExists,
 	fileExistsSync,
 	msToTime,
 	capitalize,
+	insertSpacesCamel,
 }
