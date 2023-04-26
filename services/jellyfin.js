@@ -20,7 +20,6 @@ const jellyRequest = async (path, opts = {}) => {
 		if (res.statusCode < 200 || res.statusCode >= 300) {
 			throw new Error(`Status code: ${res.statusCode}, Status message: ${res.statusMessage}`);
 		} 
-	
 		return	[
 			res.body, 
 			res.statusCode
@@ -38,6 +37,10 @@ const jellyfinSystemTasks = async (taskId) => {
 		const [ tasks ] = await jellyRequest('ScheduledTasks');
 		for (let key in tasks) {
 			if (tasks[key].Key === taskId) {
+				if (tasks[key].State === 'Running') {
+					logger.info(`Jellyfin task ${taskName} is already running. Current progress: ${tasks[key]. CurrentProgressPercentage}%`);
+					return true;
+				}
 				const [ response, code ] = await jellyRequest(
 					`ScheduledTasks/Running/${tasks[key].Id}`, 
 					{ method: 'POST' }
