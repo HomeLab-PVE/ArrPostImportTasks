@@ -8,7 +8,7 @@ if (!isRequierdEnvs()) process.exit();
 (async function () {
 	logger.info(`Starting post import tasks`);
 	await ignoreFile();
-	//await runsubtitlesTasks();
+	await runsubtitlesTasks();
 	await ruBazarrTasks();
 	await ignoreFile('delete');
 	logger.info(`Finished tasks for video ID`);
