@@ -1,6 +1,7 @@
 const request = require('requestretry');
-const envs = require('./environments');
-const { logger } = require('./logger');
+const envs = require('./../environments');
+const { logger } = require('./../logger');
+const { insertSpacesCamel } = require('./../utils');
 
 const jellyRequest = async (path, opts = {}) => {
 	try {
@@ -30,17 +31,19 @@ const jellyRequest = async (path, opts = {}) => {
 	}
 };
 
-const runIntroSkipperTask = async () => {
+const jellyfinSystemTasks = async (taskId) => {
 	try {
+		const taskName = insertSpacesCamel(taskId);
+		logger.info(`Run Jellyfin system task: ${taskName}`);
 		const [ tasks ] = await jellyRequest('ScheduledTasks');
 		for (let key in tasks) {
-			if (tasks[key].Key === 'CPBIntroSkipperDetectIntroductions') {
+			if (tasks[key].Key === taskId) {
 				const [ response, code ] = await jellyRequest(
 					`ScheduledTasks/Running/${tasks[key].Id}`, 
 					{ method: 'POST' }
 				);
 				if (code === 204) {
-					logger.info(`Task id ${tasks[key].Id} started. Description: Analyzes the audio to find introduction sequences.`);
+					logger.info(`Jellyfin task ${taskName} triggered with success.`);
 					return true;
 				}
 			} 
@@ -49,15 +52,27 @@ const runIntroSkipperTask = async () => {
 		return false;
 		
 	} catch (err) {
-		logger.error("runIntroSkipperTask: ", err);
+		logger.error("jellyfinSystemTasks: ", err);
 	}
 };
 
-//(async function () {
-	//console.log(await runIntroSkipperTask());
-	//http://192.168.90.2:8096/api-docs/swagger/index.html
-	
-//})()
+const runJellyfinTasks = async () => {
+	try {
+		if (!envs.jellyfinAddress || !envs.jellyfinApiKey) {
+			logger.warn(`Jellyfin IP:PORT/API Key not found in .env. Skiping tasks...`)
+			return;
+		}
+		if (envs.importArr === 'sonarr') {
+			await jellyfinSystemTasks('CPBIntroSkipperDetectIntroductions');
+		}
+		
+		await jellyfinSystemTasks('RefreshChapterImages');
+		
+	} catch (err) {
+		logger.error("runJellyfinTasks: ", err);
+	}
+};
+
 module.exports = {
-	runIntroSkipperTask,
+	runJellyfinTasks,
 }
