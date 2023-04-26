@@ -3,7 +3,7 @@ const { logger } = require('./logger');
 const { checkEnvs } = require('./utils');
 const { convertExternalSubtitles, checkForExternalSubs, detectEncoding, checkExtractedSubtitles } = require('./convertSubtitles');
 const extractSubtitles = require('./extractSubtitles');
-const { notifyBazarr } = require('./notify');
+const { ruBazarrTasks } = require('./services/bazarr');
 
 const missingEnvs = checkEnvs(envs);
 if (missingEnvs !== false) {
@@ -32,9 +32,6 @@ if (missingEnvs !== false) {
 	} catch (err) {
 		logger.error("Extract internal subtitles: ", err);
 	}
-	if (envs.bazarrAddress && envs.bazarrApiKey) {
-		logger.info(`Notify Bazarr at ${envs.bazarrAddress}`)
-		await notifyBazarr();
-	}
+	await ruBazarrTasks();
 	logger.info(`Finished tasks for video ID: ${envs.importArr}-${envs.videoId}`);
 })()
