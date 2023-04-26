@@ -11,5 +11,5 @@ if (!isRequierdEnvs()) process.exit();
 	await runsubtitlesTasks();
 	await ruBazarrTasks();
 	await ignoreFile('delete');
-	logger.info(`Finished tasks for video ID`);
+	logger.info(`Finished post import tasks`);
 })()
