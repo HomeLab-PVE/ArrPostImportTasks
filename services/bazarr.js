@@ -80,8 +80,9 @@ const ruBazarrTasks = async () => {
 			logger.warn(`Bazarr IP:PORT/API Key not found in .env. Skiping Bazarr tasks...`)
 			return false;
 		}
-		
-		await bazarrSystemTasks('sync_episodes');
+		if (envs.importArr === 'sonarr') {
+			await bazarrSystemTasks('sync_episodes');
+		}
 		await notifyBazarr();
 		
 	} catch (err) {
