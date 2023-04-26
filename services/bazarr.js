@@ -5,10 +5,6 @@ const { capitalize } = require('./../utils');
 
 const bazarrRequest = async (path, opts = {}) => {
 	try {
-		if (!envs.bazarrAddress || !envs.bazarrApiKey) {
-			logger.warn(`Bazarr IP:PORT/API Key not found in .env. Skiping...`)
-			return false;
-		}		
 		opts['headers'] = {
 			'x-api-key': `${envs.bazarrApiKey}`,
 		}
@@ -20,7 +16,7 @@ const bazarrRequest = async (path, opts = {}) => {
 		if (res.statusCode < 200 || res.statusCode >= 300) {
 			throw new Error(`Status code: ${res.statusCode}, Status message: ${res.statusMessage}`);
 		} 
-	
+
 		return	[
 			res.body, 
 			res.statusCode
@@ -31,33 +27,10 @@ const bazarrRequest = async (path, opts = {}) => {
 	}
 };
 
-const notifyBazarr = async () => {
-	try {
-		logger.info(`Trigger ${capitalize(envs.importArr)} search`);
-		const body = {};
-		body[(envs.importArr === 'radarr') ? 'radarr_moviefile_id' : 'sonarr_episodefile_id'] = envs.videoId;
-		const [ response, code ] = await bazarrRequest(
-			`api/webhooks/${envs.importArr}`, { 
-				method: 'POST',
-				body: body,
-			}
-		);
-		if (code === 200) {
-			logger.info('Bazarr webhook triggered.');
-			return true;
-		}
-		
-		return false;
-		
-	} catch (err) {
-		logger.error("notifyBazarr: ", err);
-	}
-};
-
 const bazarrSystemTasks = async (taskId) => {
 	try {
 		const taskName = capitalize(taskId).replace('_', ' ');
-		logger.info(`Run Bazarr task: ${taskName}`);
+		logger.info(`Run Bazarr system task: ${taskName}`);
 		const [ response, code ] = await bazarrRequest(
 			`api/system/tasks`, { 
 				method: 'POST',
@@ -76,6 +49,37 @@ const bazarrSystemTasks = async (taskId) => {
 	}
 };
 
+const bazarrSearchSubtitle = async (taskId) => {
+	try {
+		logger.info(`Trigger Bazarr subtitile index/search`);
+		const type = (envs.importArr === 'radarr') ? 'movies' : 'series';
+		const key = (type === 'movies') ? 'radarrid' : 'seriesid';
+		const searchId = (type === 'movies') ? envs.videoId : process.env.sonarr_series_id;
+		if (!searchId) {
+			logger.warn(`We cannot search for subtitles because search id is missing`);
+			return;
+		}
+		const [ response, code ] = await bazarrRequest(
+			`api/${type}`, { 
+				method: 'PATCH',
+				body: { 
+					action: 'search-missing',
+					[key]: searchId,
+				},
+			}
+		);
+		if (code === 204) {
+			logger.info(`Bazarr subtitile index/search triggered with success.`);
+			return true;
+		}
+		
+		return false;
+		
+	} catch (err) {
+		logger.error("bazarrSearchSubtitle: ", err);
+	}
+};
+
 const ruBazarrTasks = async () => {
 	try {
 		if (!envs.bazarrAddress || !envs.bazarrApiKey) {
@@ -83,7 +87,7 @@ const ruBazarrTasks = async () => {
 			return;
 		}
 		if (envs.importArr === 'sonarr') await bazarrSystemTasks('sync_episodes');
-		await notifyBazarr();
+		await bazarrSearchSubtitle();
 		
 	} catch (err) {
 		logger.error("ruBazarrTasks: ", err);
@@ -91,7 +95,5 @@ const ruBazarrTasks = async () => {
 };
 
 module.exports = {
-	notifyBazarr,
-	bazarrSystemTasks,
 	ruBazarrTasks,
 }
