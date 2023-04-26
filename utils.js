@@ -1,21 +1,9 @@
 const fs = require('fs');
+const path = require('path');
 const z = require('zero-fill');
 
-const checkEnvs = (obj) => {
-	const missing = [];
-	for (let env in obj) {
-        if (obj[env] === null)
-			missing.push(env);
-    }
-	if (missing.length !== 0) {
-		return missing;
-	}
-	return false;
-};
-
 function capitalize(str) {
-	const lower = str.toLowerCase();
-	return str.charAt(0).toUpperCase() + lower.slice(1);
+	return str.charAt(0).toUpperCase() + str.toLowerCase().slice(1);
 }
 
 const fileExists = async (path) => !!(await fs.promises.stat(path).catch((e) => false));
@@ -39,7 +27,6 @@ const msToTime = (s) => {
 }
 
 module.exports = {
-	checkEnvs,
 	fileExists,
 	fileExistsSync,
 	msToTime,
