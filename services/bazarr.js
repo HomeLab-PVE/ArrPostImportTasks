@@ -131,20 +131,20 @@ const bazarrCheckSync = async () => {
 	}
 };
 
-const ruBazarrTasks = async () => {
+const runBazarrTasks = async () => {
 	try {
 		if (!envs.bazarrAddress || !envs.bazarrApiKey) {
-			logger.warn(`Bazarr IP:PORT/API Key not found in .env. Skiping Bazarr tasks...`)
+			logger.warn(`Bazarr IP:PORT/API Key not found in .env. Skiping tasks...`)
 			return;
 		}
 		const syncData = await bazarrCheckSync();
 		if (syncData) await bazarrSearchSubtitle(syncData);
 		
 	} catch (err) {
-		logger.error("ruBazarrTasks: ", err);
+		logger.error("runBazarrTasks: ", err);
 	}
 };
 
 module.exports = {
-	ruBazarrTasks,
+	runBazarrTasks,
 }
