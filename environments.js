@@ -1,20 +1,13 @@
 require("dotenv").config();
 
 let importArr = null;
-let videoId = null;
-if (process.env.sonarr_episodefile_id) {
-	importArr = 'sonarr';
-	videoId = process.env.sonarr_episodefile_id;
-} 
-else if (process.env.radarr_movie_id) {
-	importArr = 'radarr';
-	videoId = process.env.radarr_movie_id;
-} 
+if (process.env.sonarr_episodefile_id) importArr = 'sonarr' 
+else if (process.env.radarr_movie_id) importArr = 'radarr';
 
 const envs = {
 	eventType: process.env.radarr_eventtype || process.env.sonarr_eventtype || null,
 	importArr: importArr,
-	videoId: videoId,
+	videoId: process.env.radarr_movie_id || process.env.sonarr_episodefile_id || null,
 	movieFilePath: process.env.radarr_moviefile_path || process.env.sonarr_episodefile_path || null,
 	moviePath: process.env.radarr_movie_path || process.env.sonarr_series_path || null,
 	movieFileRelativePath: process.env.radarr_moviefile_relativepath || process.env.sonarr_episodefile_relativepath || null,
