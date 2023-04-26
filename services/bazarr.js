@@ -81,7 +81,16 @@ const bazarrSearchSubtitle = async ( opts = {} ) => {
 
 const bazarrCheckSync = async () => {
 	try {
+		if (envs.importArr === 'sonarr') {
+			await bazarrSystemTasks('update_series');
+			await bazarrSystemTasks('sync_episodes');
+		} 
+		else if (envs.importArr === 'radarr') {
+			await bazarrSystemTasks('update_movies');
+		}
+		
 		logger.info(`Waiting Bazarr to sync from ${capitalize(envs.importArr)}`);
+		
 		const type = (envs.importArr === 'radarr') ? 'movies' : 'series';
 		const searchId = (type === 'movies') ? envs.videoId : process.env.sonarr_series_id;
 		if (!searchId) {
@@ -128,8 +137,6 @@ const ruBazarrTasks = async () => {
 			logger.warn(`Bazarr IP:PORT/API Key not found in .env. Skiping Bazarr tasks...`)
 			return;
 		}
-		
-		if (envs.importArr === 'sonarr') await bazarrSystemTasks('sync_episodes');
 		const syncData = await bazarrCheckSync();
 		if (syncData) await bazarrSearchSubtitle(syncData);
 		
