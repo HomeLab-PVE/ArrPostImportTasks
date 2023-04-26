@@ -1,7 +1,8 @@
 const { logger } = require('./logger');
 const { isRequierdEnvs, ignoreFile } = require('./functions');
 const { runsubtitlesTasks } = require('./subtitles/subtitlesTasks');
-const { ruBazarrTasks } = require('./services/bazarr');
+const { runBazarrTasks } = require('./services/bazarr');
+const { runJellyfinTasks } = require('./services/jellyfin');
 
 if (!isRequierdEnvs()) process.exit();
 
@@ -9,7 +10,8 @@ if (!isRequierdEnvs()) process.exit();
 	logger.info(`Starting post import tasks`);
 	await ignoreFile();
 	await runsubtitlesTasks();
-	await ruBazarrTasks();
+	await runBazarrTasks();
+	await runJellyfinTasks();
 	await ignoreFile('delete');
 	logger.info(`Finished post import tasks`);
 })()
