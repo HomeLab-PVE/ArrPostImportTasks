@@ -1,23 +1,15 @@
-const envs = require('./environments');
 const { logger } = require('./logger');
-const { checkEnvs } = require('./utils');
+const { isRequierdEnvs, ignoreFile } = require('./functions');
 const { runsubtitlesTasks } = require('./subtitles/subtitlesTasks');
 const { ruBazarrTasks } = require('./services/bazarr');
 
-const missingEnvs = checkEnvs(envs);
-if (missingEnvs !== false) {
-	logger.warn(`Missing environments: ${missingEnvs.join()}. Exiting...`);
-	process.exit();
-} else {
-	if (envs.eventType !== 'Download') {
-		logger.warn('Event type is not import. Exiting...');
-		process.exit();
-	}
-}
+if (!isRequierdEnvs()) process.exit();
 
 (async function () {
-	logger.info(`Starting post import tasks for video ID: ${envs.importArr}-${envs.videoId}`)
-	await runsubtitlesTasks();
+	logger.info(`Starting post import tasks`);
+	await ignoreFile();
+	//await runsubtitlesTasks();
 	await ruBazarrTasks();
-	logger.info(`Finished tasks for video ID: ${envs.importArr}-${envs.videoId}`);
+	await ignoreFile('delete');
+	logger.info(`Finished tasks for video ID`);
 })()
