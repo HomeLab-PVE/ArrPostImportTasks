@@ -96,8 +96,8 @@ const bazarrCheckSync = async () => {
 		
 		const path = (type === 'movies') ? `movies?radarrid[]=${searchId}` : `episodes?seriesid[]=${searchId}`;
 		
-		let awaitMs = 100;
-		for (let i = 0; i < awaitMs; i++) { 
+		let checks = 100;
+		for (let i = 0; i < checks; i++) { 
 			await new Promise(r => setTimeout(r, 2500));
 			let [ response, code ] = await bazarrRequest(`api/${path}`);
 			if (code === 200 && type === 'movies') {
