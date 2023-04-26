@@ -1,6 +1,7 @@
 const request = require('requestretry');
 const envs = require('./../environments');
 const { logger } = require('./../logger');
+const { capitalize } = require('./../utils');
 
 const bazarrRequest = async (path, opts = {}) => {
 	try {
@@ -32,7 +33,7 @@ const bazarrRequest = async (path, opts = {}) => {
 
 const notifyBazarr = async () => {
 	try {
-		logger.info(`Trigger Radarr/Sonarr search`);
+		logger.info(`Trigger ${capitalize(envs.importArr)} search`);
 		const body = {};
 		body[(envs.importArr === 'radarr') ? 'radarr_moviefile_id' : 'sonarr_episodefile_id'] = envs.videoId;
 		const [ response, code ] = await bazarrRequest(
@@ -55,7 +56,8 @@ const notifyBazarr = async () => {
 
 const bazarrSystemTasks = async (taskId) => {
 	try {
-		logger.info(`Run Bazarr task: ${taskId}`);
+		const taskName = capitalize(taskId).replace('_', ' ');
+		logger.info(`Run Bazarr task: ${taskName}`);
 		const [ response, code ] = await bazarrRequest(
 			`api/system/tasks`, { 
 				method: 'POST',
@@ -63,7 +65,7 @@ const bazarrSystemTasks = async (taskId) => {
 			}
 		);
 		if (code === 204) {
-			logger.info(`Bazarr task ${taskId} triggered with success.`);
+			logger.info(`Bazarr task ${taskName} triggered with success.`);
 			return true;
 		}
 		
@@ -78,11 +80,9 @@ const ruBazarrTasks = async () => {
 	try {
 		if (!envs.bazarrAddress || !envs.bazarrApiKey) {
 			logger.warn(`Bazarr IP:PORT/API Key not found in .env. Skiping Bazarr tasks...`)
-			return false;
+			return;
 		}
-		if (envs.importArr === 'sonarr') {
-			await bazarrSystemTasks('sync_episodes');
-		}
+		if (envs.importArr === 'sonarr') await bazarrSystemTasks('sync_episodes');
 		await notifyBazarr();
 		
 	} catch (err) {
