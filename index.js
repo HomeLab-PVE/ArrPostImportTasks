@@ -8,10 +8,8 @@ if (!isRequierdEnvs()) process.exit();
 
 (async function () {
 	logger.info(`Starting post import tasks`);
-	await ignoreFile();
 	await runsubtitlesTasks();
 	await runBazarrTasks();
 	await runJellyfinTasks();
-	await ignoreFile('delete');
 	logger.info(`Finished post import tasks`);
 })()
