@@ -1,8 +1,7 @@
 const envs = require('./environments');
 const { logger } = require('./logger');
 const { checkEnvs } = require('./utils');
-const { convertExternalSubtitles, checkForExternalSubs, detectEncoding, checkExtractedSubtitles } = require('./convertSubtitles');
-const extractSubtitles = require('./extractSubtitles');
+const { runsubtitlesTasks } = require('./subtitles/subtitlesTasks');
 const { ruBazarrTasks } = require('./services/bazarr');
 
 const missingEnvs = checkEnvs(envs);
@@ -18,20 +17,7 @@ if (missingEnvs !== false) {
 
 (async function () {
 	logger.info(`Starting post import tasks for video ID: ${envs.importArr}-${envs.videoId}`)
-	logger.info("Checking for external subtitles");
-	let externalSubFilePaths;
-	let extractedSubtitles;
-	if (externalSubFilePaths = await checkForExternalSubs(envs) ) {
-		await convertExternalSubtitles(externalSubFilePaths);
-	}
-	logger.info("Checking for internal subtitles");
-	try {
-		if (extractedSubtitles = await extractSubtitles(envs.movieFilePath) ) {
-			await checkExtractedSubtitles(extractedSubtitles);
-		}
-	} catch (err) {
-		logger.error("Extract internal subtitles: ", err);
-	}
+	await runsubtitlesTasks();
 	await ruBazarrTasks();
 	logger.info(`Finished tasks for video ID: ${envs.importArr}-${envs.videoId}`);
 })()
