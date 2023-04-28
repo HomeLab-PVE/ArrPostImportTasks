@@ -59,12 +59,36 @@ const jellyfinSystemTasks = async (taskId) => {
 	}
 };
 
+const jellyfinCheckSync = async () => {
+	try {
+		logger.info(`Waiting Jellyfin to sync`);
+		////// TODO: 
+		const path = `Users/ca0967efa4b848fa9b0e96ea25e2c177/Items?SortBy=DateCreated&SortOrder=Descending&IncludeItemTypes=Movie&Limit=2&ParentId=7a2175bccb1f1a94152cbd2b2bae8f6d&fields=Path&enableTotalRecordCount=false&enableImages=false`;
+		/////
+		let checks = 1;
+		for (let i = 0; i < checks; i++) { 
+			let [ response, code ] = await jellyRequest(`${path}`);
+			console.log(response);
+			if (code === 200 && response.Items.find(obj => obj.Path == envs.movieFilePath)) {
+				return true;
+			}
+			await new Promise(r => setTimeout(r, 10500));
+		}
+		logger.warn(`Jellyfin sync faild`);
+		return false;
+		
+	} catch (err) {
+		logger.error("jellyfinCheckSync: ", err);
+	}
+};
+
 const runJellyfinTasks = async () => {
 	try {
 		if (!envs.jellyfinAddress || !envs.jellyfinApiKey) {
 			logger.warn(`Jellyfin IP:PORT/API Key not found in .env. Skiping tasks...`)
 			return;
 		}
+		
 		if (envs.importArr === 'sonarr') {
 			await jellyfinSystemTasks('CPBIntroSkipperDetectIntroductions');
 		}
