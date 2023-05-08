@@ -59,7 +59,7 @@ const jellyfinSystemTasks = async (taskId) => {
 	}
 };
 
-const jellyfinGetLibrariesIds= async () => {
+const jellyfinGetLibrariesIds = async () => {
 	try {
 		
 		logger.info(`Geting Jellyfin libraries ids`);
