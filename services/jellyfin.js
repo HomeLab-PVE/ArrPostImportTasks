@@ -100,11 +100,15 @@ const jellyfinDiscoverMedia = async () => {
 		const librariesIds = await jellyfinGetLibrariesIds();
 		if (librariesIds) {
 			logger.info(`Waiting Jellyfin to discover media`);
-			const requestPath = `Users/${envs.jellyfinUserId}/Items?SortBy=DateCreated&SortOrder=Descending&Limit=30&ParentId=${librariesIds.join(',')}&fields=Path&enableTotalRecordCount=false&enableImages=false`;
+			let requestPath = `Users/${envs.jellyfinUserId}/Items?SortBy=DateCreated&SortOrder=Descending&Limit=20&ParentId=${librariesIds.join(',')}&fields=Path&enableTotalRecordCount=false&enableImages=false`;
+			if (envs.importArr === 'sonarr') {
+				requestPath = `Users/${envs.jellyfinUserId}/Items?SortBy=DateCreated&SortOrder=Descending&Limit=20&IncludeItemTypes=Episode&Recursive=true&ParentId=${librariesIds.join(',')}&fields=Path&IsMissing=false&enableTotalRecordCount=false&enableImages=false`;
+			}
 			
-			let checks = 30;
+			let checks = 1;
 			for (let i = 0; i < checks; i++) { 
 				let [ response, code ] = await jellyRequest(`${requestPath}`);
+				console.log(response)
 				if (code === 200 && response.Items.find(obj => obj.Path == envs.movieFilePath)) {
 					logger.info(`Item ${envs.movieFilePath} discovered by Jellyfin`);
 					return true;
