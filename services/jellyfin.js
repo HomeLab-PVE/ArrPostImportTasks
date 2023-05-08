@@ -105,7 +105,7 @@ const jellyfinDiscoverMedia = async () => {
 				requestPath = `Users/${envs.jellyfinUserId}/Items?SortBy=DateCreated&SortOrder=Descending&Limit=20&IncludeItemTypes=Episode&Recursive=true&ParentId=${librariesIds.join(',')}&fields=Path&IsMissing=false&enableTotalRecordCount=false&enableImages=false`;
 			}
 			
-			let checks = 1;
+			let checks = 30;
 			for (let i = 0; i < checks; i++) { 
 				let [ response, code ] = await jellyRequest(`${requestPath}`);
 				console.log(response)
