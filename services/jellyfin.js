@@ -59,64 +59,65 @@ const jellyfinSystemTasks = async (taskId) => {
 	}
 };
 
-const jellyfinGetParentIds= async () => {
+const jellyfinGetLibrariesIds= async () => {
 	try {
-		logger.info(`Get Jellyfin items parents ids`);
 		
-		const path = `Users/ca0967efa4b848fa9b0e96ea25e2c177/Items?SortBy=DateCreated&SortOrder=Descending&enableTotalRecordCount=false&enableImages=false`;
-		const type = (envs.importArr === 'radarr') ? 'movies' : 'tvshows';
+		logger.info(`Geting Jellyfin libraries ids`);
 		
 		let parentIds = [];
-		let [ response, code ] = await jellyRequest(`${path}`);
+		const requestPath = `Users/${envs.jellyfinUserId}/Items?SortBy=DateCreated&SortOrder=Descending&enableTotalRecordCount=false&enableImages=false`;
+		const libraryType = (envs.importArr === 'radarr') ? 'movies' : 'tvshows';
+		
+		let [ response, code ] = await jellyRequest(`${requestPath}`);
 		if (code === 200 && response.Items) {
 			response.Items.forEach(function (obj) {
-				//console.log(obj)
-				if (obj.CollectionType !== 'ss') {
+				if (obj.CollectionType == libraryType) {
 					parentIds.push(obj.Id)
 				}
 			});
-		}
-		console.log(parentIds)
-		if (parentIds.length > 0 ) {
-			logger.info(`Found ${parentIds.length} parents ids`);
-			return parentIds;
+			if (parentIds.length > 0 ) {
+				logger.info(`Found ${parentIds.length} ${libraryType} libraries ids`);
+				return parentIds;
+			} 
 		}
 		
-		logger.warn(`No items parents ids found`);
+		logger.warn(`No Jellyfin libraries ids found`);
+		
 		return false;
 		
 	} catch (err) {
-		logger.error("jellyfinCheckSync: ", err);
+		logger.error("jellyfinGetLibrariesIds: ", err);
 	}
 };
 
-const jellyfinCheckSync = async () => {
+const jellyfinDiscoverMedia = async () => {
 	try {
-		logger.info(`Waiting Jellyfin to discover media`);
-		await jellyfinGetParentIds();
-		
-		////// TODO: 
-		//const path = `Users/ca0967efa4b848fa9b0e96ea25e2c177/Items?SortBy=DateCreated&SortOrder=Descending&IncludeItemTypes=Movie&Limit=2&ParentId=7a2175bccb1f1a94152cbd2b2bae8f6d&fields=Path&enableTotalRecordCount=false&enableImages=false`;
-		//const path = `Users/ca0967efa4b848fa9b0e96ea25e2c177/Items?SortBy=DateCreated&SortOrder=Descending&IncludeItemTypes=Movie&Limit=2&ParentId=7a2175bccb1f1a94152cbd2b2bae8f6d&fields=Path&enableTotalRecordCount=false&enableImages=false`;
-		const path = `Users/ca0967efa4b848fa9b0e96ea25e2c177/Items?SortBy=DateCreated&SortOrder=Descending`;
-		/////
-		
-		let [ response, code ] = await jellyRequest(`${path}`);
-		
-		let checks = 10;
-		for (let i = 0; i < checks; i++) { 
-			let [ response, code ] = await jellyRequest(`${path}`);
-			//console.log(response);
-			if (code === 200 && response.Items.find(obj => obj.Path == envs.movieFilePath)) {
-				return true;
-			}
-			await new Promise(r => setTimeout(r, 10500));
+		if (!envs.jellyfinUserId) {
+			logger.warn(`Jellyfin User Id not found in .env. Skiping task...`)
+			return;
 		}
-		logger.warn(`Jellyfin discover faild`);
+		
+		const librariesIds = await jellyfinGetLibrariesIds();
+		if (librariesIds) {
+			logger.info(`Waiting Jellyfin to discover media`);
+			const requestPath = `Users/${envs.jellyfinUserId}/Items?SortBy=DateCreated&SortOrder=Descending&Limit=30&ParentId=${librariesIds.join(',')}&fields=Path&enableTotalRecordCount=false&enableImages=false`;
+			
+			let checks = 2;
+			for (let i = 0; i < checks; i++) { 
+				let [ response, code ] = await jellyRequest(`${requestPath}`);
+				if (code === 200 && response.Items.find(obj => obj.Path == envs.movieFilePath)) {
+					logger.info(`Item ${envs.movieFilePath} discovered by Jellyfin`);
+					return true;
+				}
+				await new Promise(r => setTimeout(r, 10500));
+			}
+		}
+		
+		logger.warn(`Jellyfin discover item ${envs.movieFilePath} faild`);
 		return false;
 		
 	} catch (err) {
-		logger.error("jellyfinCheckSync: ", err);
+		logger.error("jellyfinDiscoverMedia: ", err);
 	}
 };
 
@@ -126,12 +127,12 @@ const runJellyfinTasks = async () => {
 			logger.warn(`Jellyfin IP:PORT/API Key not found in .env. Skiping tasks...`)
 			return;
 		}
-		
+		await jellyfinDiscoverMedia();
 		if (envs.importArr === 'sonarr') {
 			await jellyfinSystemTasks('CPBIntroSkipperDetectIntroductions');
 		}
 		await jellyfinSystemTasks('RefreshChapterImages');
-		await jellyfinCheckSync();
+		
 	} catch (err) {
 		logger.error("runJellyfinTasks: ", err);
 	}
