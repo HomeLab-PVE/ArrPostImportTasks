@@ -9,7 +9,7 @@ const ignoreFile = async (action) => {
 		if (!action) {
 			action = 'create';
 		}
-		const ignoreFilePath = path.join(path.dirname(envs.movieFilePath), '.ignore');
+		const ignoreFilePath = path.join(path.dirname(envs.movieFilePath), '.await-move');
 		
 		if (action === 'create') {	
 			if (await fileExists(ignoreFilePath)) {
