@@ -15,6 +15,7 @@ const envs = {
 	bazarrApiKey: process.env.BAZARR_API_KEY,
 	jellyfinAddress: process.env.JELLYFIN_IP_PORT,
 	jellyfinApiKey: process.env.JELLYFIN_API_KEY,
+	jellyfinUserId: process.env.JELLYFIN_USER_ID,
 };
 
 module.exports = envs;
