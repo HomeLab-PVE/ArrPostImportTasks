@@ -102,7 +102,7 @@ const jellyfinDiscoverMedia = async () => {
 			logger.info(`Waiting Jellyfin to discover media`);
 			const requestPath = `Users/${envs.jellyfinUserId}/Items?SortBy=DateCreated&SortOrder=Descending&Limit=30&ParentId=${librariesIds.join(',')}&fields=Path&enableTotalRecordCount=false&enableImages=false`;
 			
-			let checks = 2;
+			let checks = 30;
 			for (let i = 0; i < checks; i++) { 
 				let [ response, code ] = await jellyRequest(`${requestPath}`);
 				if (code === 200 && response.Items.find(obj => obj.Path == envs.movieFilePath)) {
