@@ -1,7 +1,7 @@
 const API_URL = 'https://apis.justwatch.com';
 const request = require('requestretry');
 
-class justWatchScrape {
+class justWatch {
 	constructor(options) {
 		this._options = Object.assign({
 			country: 'RO',
@@ -192,7 +192,7 @@ class justWatchScrape {
 
 }
 
-const scrape = new justWatchScrape({
+const scrape = new justWatch({
 	content: {
 		query: 'Black Widow',
 		id: 'tt3480822',
