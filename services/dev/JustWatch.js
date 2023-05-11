@@ -39,8 +39,7 @@ class justWatch {
 		this._options.locale = this._options.language + '_' + this._options.country;
 		this._options['idProvider'] = (this._options.content.id.startsWith('tt')) ? 'imdb' : 'tmdb';
 		this.jwData = {};
-		
-		console.log(this._options)
+
 	}
 	
 	async #jwRequest(url, requestOptions) {
@@ -109,10 +108,6 @@ class justWatch {
 			   let jwNodeId = edges[i].node.objectId;
 			   let jwNodetype = edges[i].node.objectType;
 			   let response = await this.#jwRequest(`${API_URL}/content/titles/${jwNodetype.toLowerCase()}/${jwNodeId}/locale/${this._options.locale}`);
-			   console.log(jwNodeId)
-			   if (response) {
-					console.log(response.title)
-			   }
 			   if (response && response.external_ids.find(obj => obj.external_id == this._options.content.id 
 				&& obj.provider === this._options.idProvider)) {
 					
@@ -192,22 +187,4 @@ class justWatch {
 
 }
 
-const scrape = new justWatch({
-	content: {
-		query: 'Black Widow',
-		id: 'tt3480822',
-	},
-	//filters: {
-		//mediaType: ['MOVIE', 'SHOW']
-		//releaseYear: {
-			//min: null,
-			//max: null,
-		//},
-		//limit: 1,
-	//}, 
-	//streamingProviders: ['nfx', 'dnp', 'hbm'],
-});
-
-(async  () => {
-	console.log(await scrape.getStreamingProvidersIds())
-})();
+module.exports = justWatch
