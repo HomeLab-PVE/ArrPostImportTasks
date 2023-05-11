@@ -8,8 +8,8 @@ const disneyPlus = require('./DisneyPlus');
 		content: {
 			//query: 'Black Widow',
 			//id: 'tt3480822',
-			query: 'White Collar',
-			id: 'tt1358522',
+			query: 'Modern Family',
+			id: 'tt1442437',
 			
 		},
 	});
