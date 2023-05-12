@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "justwatch-api": "^1.0.7",
-    "languagedetect": "^2.0.0",
-    "requestretry": "^7.1.0"
-  }
-}
